@@ -25,13 +25,14 @@ app.listen(3000, () => {
 });
 
 //New message schema for MongoDB database
-let MessageSchema = new mongoose.Schema({
+let CustomerSchema = new mongoose.Schema({
   phoneNumber: String,
-  groupName: String,
-  totalAdults: String,
-  totalKids: String,
+  nextAppointment: Date,
+  lastVaccination: Date,
+  inConversation1: Boolean,
+  inConversation2: Boolean,
 });
-let Message = mongoose.model("Message", MessageSchema);
+let Customer = mongoose.model("Customer", CustomerSchema);
 
 //Whenever a message comes in to the Twilo number
 app.post("/inbound", (req, res) => {
@@ -43,14 +44,79 @@ app.post("/inbound", (req, res) => {
   console.log(req.body.To);
   console.log(req.body.Body);
 
-  //Check if previous conversation has happened with this number
-  Message.find({ phoneNumber: req.body.From }, (err, message) => {
-    if (message.length !== 0) {
-    } else {
+  //Check if customer with this number exists
+  Customer.find({ phoneNumber: req.body.From }, (err, customers) => {
+    //If the number does not exist and the body is Hello, RSVP, Woof or Meow
+    if (
+      customers.length === 0 &&
+      (body === "Hello" ||
+        body === "RSVP" ||
+        body === "Woof" ||
+        body === "Meow")
+    ) {
+      let newCustomer = new Customer();
+      newCustomer.phoneNumber = from;
+      newCustomer.save(() => {
+        client.messages
+          .create({
+            to: `${from}`,
+            from: `${to}`,
+            body:
+              "Welcome to VCA Animal Hospitals!\nText 1 to schedule a new appointment",
+          })
+          .then((message) => console.log(message.sid));
+        res.end();
+      });
+    }
+    //If the number does not exist and the body is not Hello, RSVP, Woof or Meow
+    else if (
+      customers.length === 0 &&
+      !(
+        body === "Hello" ||
+        body === "RSVP" ||
+        body === "Woof" ||
+        body === "Meow"
+      )
+    ) {
+      client.messages
+        .create({
+          to: `${from}`,
+          from: `${to}`,
+          body:
+            "Invalid text. If you are a customer of VCA Animal Hospitals, please text Woof or Meow",
+        })
+        .then((message) => console.log(message.sid));
+      res.end();
+    }
+    //If the number exists and the body is Hello, RSVP, Woof or Meow (set inConversation1 to true) -> false on success
+    else if (
+      customers.length !== 0 &&
+      (body === "Hello" ||
+        body === "RSVP" ||
+        body === "Woof" ||
+        body === "Meow")
+    ) {
+      Customer.findByIdAndUpdate(customers[0]._id, { inConversation: true });
+      client.messages
+        .create({
+          to: `${from}`,
+          from: `${to}`,
+          body:
+            "Welcome back to VCA Animal Hospitals. Please select one of these options:\nText 1 to create a new appointment or update existing appointment.\nText 2 to delete appointment.",
+        })
+        .then((message) => console.log(message.sid));
+      res.end();
+    }
+    //If the number exists and the body is not Hello, RSVP, Woof or Meow
+    //If the number exists and we are inConversation1 and the body is 1, 2 or 3 (set inConversation2 to true) -> (set inConversation1 to false)
+    //If the number exists and we are inConversation1 and the body is not 1, 2 or 3
+    //If the number exists and we are inConversation2 and the body is 1, 2 or 3 (set inConversation2 to false)
+    //If the number exists and we are inConversation2 and the body is not 1, 2 or 3
+    else {
       if (body === "RSVP") {
-        let newMessage = new Message();
-        newMessage.phoneNumber = from;
-        newMessage.save(() => {
+        let newCustomer = new Customer();
+        newCustomer.phoneNumber = from;
+        newCustomer.save(() => {
           client.messages
             .create({
               to: `${from}`,

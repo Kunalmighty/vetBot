@@ -46,6 +46,7 @@ app.post("/inbound", (req, res) => {
 
   //Check if customer with this number exists
   Customer.find({ phoneNumber: req.body.From }, (err, customers) => {
+    //console.log(customers[0].inConversation1);
     //If the number does not exist and the body is Hello, RSVP, Woof or Meow
     if (
       customers.length === 0 &&
@@ -56,6 +57,10 @@ app.post("/inbound", (req, res) => {
     ) {
       let newCustomer = new Customer();
       newCustomer.phoneNumber = from;
+      newCustomer.nextAppointment = null;
+      newCustomer.lastVaccination = null;
+      newCustomer.inConversation1 = false;
+      newCustomer.inConversation2 = false;
       newCustomer.save(() => {
         client.messages
           .create({
@@ -96,7 +101,11 @@ app.post("/inbound", (req, res) => {
         body === "Woof" ||
         body === "Meow")
     ) {
-      Customer.findByIdAndUpdate(customers[0]._id, { inConversation: true });
+      Customer.findByIdAndUpdate(
+        customers[0]._id,
+        { "$set": { "inConversation1": true } },
+        { "new": true, "upsert": true }
+      );
       client.messages
         .create({
           to: `${from}`,
@@ -108,7 +117,65 @@ app.post("/inbound", (req, res) => {
       res.end();
     }
     //If the number exists and the body is not Hello, RSVP, Woof or Meow
-    //If the number exists and we are inConversation1 and the body is 1, 2 or 3 (set inConversation2 to true) -> (set inConversation1 to false)
+    else if (
+      customers.length !== 0 &&
+      customers[0].inConversation1 === false &&
+      customers[0].inConversation2 === false &&
+      !(
+        body === "Hello" ||
+        body === "RSVP" ||
+        body === "Woof" ||
+        body === "Meow"
+      )
+    ) {
+      client.messages
+        .create({
+          to: `${from}`,
+          from: `${to}`,
+          body:
+            "Invalid message. Please text the word Hello, RSVP, Woof or Meow!",
+        })
+        .then((message) => console.log(message.sid));
+      res.end();
+    }
+
+    //If the number exists and we are inConversation1 and the body is 1 or 2 (set inConversation2 to true) -> (set inConversation1 to false)
+    else if (
+      customers.length !== 0 &&
+      customers[0].inConversation1 === true &&
+      (body === "1" || body === "2")
+    ) {
+      if (body === "1") {
+        client.messages
+          .create({
+            to: `${from}`,
+            from: `${to}`,
+            body:
+              "Here are your available time slots:\n1. Monday October 26th, 6 PM\n2. Tuesday October 27th, 5 PM\n3. Wednesday October 28th, 2:30 PM\nPlease text 1, 2 or 3 for which time slot you would like to reserve.",
+          })
+          .then((message) => console.log(message.sid));
+        Customer.findByIdAndUpdate(
+          customers[0]._id,
+          { "$set": { "inConversation2": true } },
+          { "new": true, "upsert": true }
+        );
+        res.end();
+      } else if (body === "2") {
+        client.messages
+          .create({
+            to: `${from}`,
+            from: `${to}`,
+            body:
+              "Your appointment has been deleted. Thank you for reaching out!",
+          })
+          .then((message) => console.log(message.sid));
+        Customer.findByIdAndUpdate(customers[0]._id, {
+          inConversation1: false,
+        });
+        res.end();
+      }
+    }
+
     //If the number exists and we are inConversation1 and the body is not 1, 2 or 3
     //If the number exists and we are inConversation2 and the body is 1, 2 or 3 (set inConversation2 to false)
     //If the number exists and we are inConversation2 and the body is not 1, 2 or 3
@@ -116,6 +183,10 @@ app.post("/inbound", (req, res) => {
       if (body === "RSVP") {
         let newCustomer = new Customer();
         newCustomer.phoneNumber = from;
+        newCustomer.nextAppointment = null;
+        newCustomer.lastVaccination = null;
+        newCustomer.inConversation1 = false;
+        newCustomer.inConversation2 = false;
         newCustomer.save(() => {
           client.messages
             .create({

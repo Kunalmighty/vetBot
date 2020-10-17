@@ -46,14 +46,6 @@ app.post("/inbound", (req, res) => {
   //Check if previous conversation has happened with this number
   Message.find({ phoneNumber: req.body.From }, (err, message) => {
     if (message.length !== 0) {
-      client.messages
-        .create({
-          to: `${from}`,
-          from: `${to}`,
-          body: "Welcome again!",
-        })
-        .then((message) => console.log(message.sid));
-      res.end();
     } else {
       if (body === "RSVP") {
         let newMessage = new Message();

@@ -5,7 +5,7 @@ const twilio = require("twilio");
 
 const app = express();
 const accountSid = "AC3afece6c20e877e5ab7b42f23da3b9ad";
-const authToken = "34766a6eaa7ed86a1ab3cec4623d4f2f";
+const authToken = "e92d52ac4ca61508d763aba2f2419f60";
 
 const client = new twilio(accountSid, authToken);
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -24,55 +24,53 @@ app.listen(3000, () => {
   console.log("server connected");
 });
 
-let messageSchema = new mongoose.Schema({
+//New message schema for MongoDB database
+let MessageSchema = new mongoose.Schema({
   phoneNumber: String,
   groupName: String,
   totalAdults: String,
   totalKids: String,
 });
-let Message = mongoose.model("Message", messageSchema);
+let Message = mongoose.model("Message", MessageSchema);
 
+//Whenever a message comes in to the Twilo number
 app.post("/inbound", (req, res) => {
   let from = req.body.From;
   let to = req.body.To;
   let body = req.body.Body;
 
+  console.log(req.body.From);
+  console.log(req.body.To);
   console.log(req.body.Body);
 
-  let newMessage = new Message();
-  newMessage.save(() => {
-    client.messages.create({
-      to: "${from}",
-      from: "${to}",
-      body: "What is your group name?",
-    });
-    res.end();
-  });
-});
-
-/*
-
+  //Check if previous conversation has happened with this number
   Message.find({ phoneNumber: req.body.From }, (err, message) => {
     if (message.length !== 0) {
-      //continue conversation
+      client.messages
+        .create({
+          to: `${from}`,
+          from: `${to}`,
+          body: "Welcome again!",
+        })
+        .then((message) => console.log(message.sid));
+      res.end();
     } else {
       if (body === "RSVP") {
-
-
         let newMessage = new Message();
         newMessage.phoneNumber = from;
         newMessage.save(() => {
-          client.messages.create({
-            to: "${from}",
-            from: "${to}",
-            body: "What is your group name?",
-          });
+          client.messages
+            .create({
+              to: `${from}`,
+              from: `${to}`,
+              body: "What is your group name?",
+            })
+            .then((message) => console.log(message.sid));
           res.end();
-
         });
       }
     }
+
     res.end();
   });
 });
-*/

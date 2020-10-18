@@ -5,7 +5,7 @@ const twilio = require("twilio");
 
 const app = express();
 const accountSid = "AC3afece6c20e877e5ab7b42f23da3b9ad";
-const authToken = "e92d52ac4ca61508d763aba2f2419f60";
+const authToken = "8aeed477332a4564801224423822ba2b";
 
 const client = new twilio(accountSid, authToken);
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -27,8 +27,8 @@ app.listen(3000, () => {
 //New message schema for MongoDB database
 let CustomerSchema = new mongoose.Schema({
   phoneNumber: String,
-  nextAppointment: Date,
-  lastVaccination: Date,
+  nextAppointment: Number,
+  lastVaccination: Number,
   inConversation1: Boolean,
   inConversation2: Boolean,
 });
@@ -247,7 +247,7 @@ app.post("/inbound", (req, res) => {
           .then((message) => console.log(message.sid));
         Customer.findByIdAndUpdate(
           customers[0]._id,
-          { "$set": { "nextAppointment": new Date('2020-10-26T18:00:00.001Z'), "inConversation1": false, "inConversation2": false } },
+          { "$set": { "nextAppointment": new Date('2020-10-26T18:00:00.001Z').getTime(), "inConversation1": false, "inConversation2": false } },
           { "new": true, "upsert": true },
           function(err, result) {
             if (err) {
@@ -271,7 +271,7 @@ app.post("/inbound", (req, res) => {
           .then((message) => console.log(message.sid));
           Customer.findByIdAndUpdate(
             customers[0]._id,
-            { "$set": { "nextAppointment": new Date('2020-10-27T17:00:00.001Z'), "inConversation1": false, "inConversation2": false } },
+            { "$set": { "nextAppointment": new Date('2020-10-27T17:00:00.001Z').getTime(), "inConversation1": false, "inConversation2": false } },
             { "new": true, "upsert": true },
             function(err, result) {
               if (err) {
@@ -295,7 +295,7 @@ app.post("/inbound", (req, res) => {
           .then((message) => console.log(message.sid));
           Customer.findByIdAndUpdate(
             customers[0]._id,
-            { "$set": { "nextAppointment": new Date('2020-10-28T14:30:00.001Z'), "inConversation1": false, "inConversation2": false } },
+            { "$set": { "nextAppointment": new Date('2020-10-28T14:30:00.001Z').getTime(), "inConversation1": false, "inConversation2": false } },
             { "new": true, "upsert": true },
             function(err, result) {
               if (err) {

@@ -247,7 +247,7 @@ app.post("/inbound", (req, res) => {
           .then((message) => console.log(message.sid));
         Customer.findByIdAndUpdate(
           customers[0]._id,
-          { "$set": { "nextAppointment": new Date('2020-10-26T18:00:00.001Z').getTime(), "inConversation1": false, "inConversation2": false } },
+          { "$set": { "nextAppointment": new Date('2020-10-26T18:00:00.001Z').getTime(), "lastVaccination": new Date('2020-10-26T18:00:00.001Z').getTime(), "inConversation1": false, "inConversation2": false } },
           { "new": true, "upsert": true },
           function(err, result) {
             if (err) {
@@ -271,7 +271,7 @@ app.post("/inbound", (req, res) => {
           .then((message) => console.log(message.sid));
           Customer.findByIdAndUpdate(
             customers[0]._id,
-            { "$set": { "nextAppointment": new Date('2020-10-27T17:00:00.001Z').getTime(), "inConversation1": false, "inConversation2": false } },
+            { "$set": { "nextAppointment": new Date('2020-10-27T17:00:00.001Z').getTime(), "lastVaccination": new Date('2020-10-27T17:00:00.001Z').getTime(), "inConversation1": false, "inConversation2": false } },
             { "new": true, "upsert": true },
             function(err, result) {
               if (err) {
@@ -295,7 +295,7 @@ app.post("/inbound", (req, res) => {
           .then((message) => console.log(message.sid));
           Customer.findByIdAndUpdate(
             customers[0]._id,
-            { "$set": { "nextAppointment": new Date('2020-10-28T14:30:00.001Z').getTime(), "inConversation1": false, "inConversation2": false } },
+            { "$set": { "nextAppointment": new Date('2020-10-28T14:30:00.001Z').getTime(), "lastVaccination": new Date('2020-10-28T14:30:00.001Z').getTime(), "inConversation1": false, "inConversation2": false } },
             { "new": true, "upsert": true },
             function(err, result) {
               if (err) {

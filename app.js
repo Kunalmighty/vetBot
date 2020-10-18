@@ -102,10 +102,20 @@ app.post("/inbound", (req, res) => {
         body === "Woof" ||
         body === "Meow")
     ) {
+
       Customer.findByIdAndUpdate(
         customers[0]._id,
-        { "$set": { "inConversation1": true } },
-        { "new": true, "upsert": true }
+        { "$set": { "inConversation1": true, "inConversation2": false } },
+        { "new": true, "upsert": true },
+        function(err, result) {
+          if (err) {
+            console.log("Database update NOT successful!\n")
+            console.log(err);
+          } else {
+            console.log("Database update successful!\n")
+            console.log(result);
+          }
+        }
       );
       client.messages
         .create({
@@ -130,6 +140,7 @@ app.post("/inbound", (req, res) => {
         body === "Meow"
       )
     ) {
+
       client.messages
         .create({
           to: `${from}`,

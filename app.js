@@ -2,10 +2,12 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const twilio = require("twilio");
+require('dotenv').config();
 
 const app = express();
-const accountSid = "AC3afece6c20e877e5ab7b42f23da3b9ad";
-const authToken = "8aeed477332a4564801224423822ba2b";
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+console.log(process.env);
 
 const client = new twilio(accountSid, authToken);
 app.use(bodyParser.urlencoded({ extended: false }));

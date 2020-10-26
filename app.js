@@ -33,6 +33,7 @@ let CustomerSchema = new mongoose.Schema({
   lastVaccination: Number,
   inConversation1: Boolean,
   inConversation2: Boolean,
+  inConversation3: Boolean,
 });
 let Customer = mongoose.model("Customer", CustomerSchema);
 
@@ -63,6 +64,7 @@ app.post("/inbound", (req, res) => {
       newCustomer.lastVaccination = null;
       newCustomer.inConversation1 = true;
       newCustomer.inConversation2 = false;
+      newCustomer.inConversation3 = false;
       newCustomer.save(() => {
         client.messages
           .create({
@@ -93,6 +95,87 @@ app.post("/inbound", (req, res) => {
             "Invalid text. If you are a customer of VCA Animal Hospitals, please text the word Hello, RSVP, Woof or Meow",
         })
         .then((message) => console.log(message.sid));
+      res.end();
+    }
+
+    //If the body is "SOS"
+    else if (body === "SOS") {
+      client.messages
+        .create({
+          to: `${from}`,
+          from: `${to}`,
+          body:
+            "We are here to help! Please select one of these options:\n1. My dog is vomiting. \n2. My dog is hurt.\n3. My dog is too itchy.\n4. My dog is lethargic.\n5. My dog is having a seizure.",
+        })
+        .then((message) => console.log(message.sid));
+        Customer.findByIdAndUpdate(
+          customers[0]._id,
+          { "$set": { "inConversation1": false, "inConversation2": false, "inConversation3": true } },
+          { "new": true, "upsert": true },
+          function(err, result) {
+            if (err) {
+              console.log("Database update NOT successful!\n")
+              console.log(err);
+            } else {
+              console.log("Database update successful!\n")
+              console.log(result);
+            }
+          }
+        );
+      res.end();
+    }
+
+    //If we are inConversation3 and the body is 1
+    else if (customers[0].inConversation3 === true && body === "1") {
+      client.messages
+        .create({
+          to: `${from}`,
+          from: `${to}`,
+          body:
+            "Our records indicate that your dog is on Antibiotics, and an upset stomach is a normal side effect. Also, if your dog has recently snacked on some grass, vomiting is a normal result. If you believe the vomiting is being caused by something more serious, or is being accompanied by other symptoms such as poor appetite, please schedule an appointment with us immediately. ",
+        })
+        .then((message) => console.log(message.sid));
+        Customer.findByIdAndUpdate(
+          customers[0]._id,
+          { "$set": { "inConversation1": false, "inConversation2": false, "inConversation3": false } },
+          { "new": true, "upsert": true },
+          function(err, result) {
+            if (err) {
+              console.log("Database update NOT successful!\n")
+              console.log(err);
+            } else {
+              console.log("Database update successful!\n")
+              console.log(result);
+            }
+          }
+        );
+      res.end();
+    }
+
+    //If we are inConversation3 and the body is not 1
+    else if (customers[0].inConversation3 === true && body !== "1") {
+      client.messages
+        .create({
+          to: `${from}`,
+          from: `${to}`,
+          body:
+            "This feature has not been implemented yet. Please check back in later!",
+        })
+        .then((message) => console.log(message.sid));
+        Customer.findByIdAndUpdate(
+          customers[0]._id,
+          { "$set": { "inConversation1": false, "inConversation2": false, "inConversation3": false } },
+          { "new": true, "upsert": true },
+          function(err, result) {
+            if (err) {
+              console.log("Database update NOT successful!\n")
+              console.log(err);
+            } else {
+              console.log("Database update successful!\n")
+              console.log(result);
+            }
+          }
+        );
       res.end();
     }
 
@@ -211,6 +294,8 @@ app.post("/inbound", (req, res) => {
         res.end();
       }
     }
+
+
 
     //If the number exists and we are inConversation1 and the body is not 1 or 2
     else if (
@@ -350,6 +435,8 @@ app.post("/inbound", (req, res) => {
         .then((message) => console.log(message.sid));
       res.end();
     }
+
+
 
     res.end();
   });

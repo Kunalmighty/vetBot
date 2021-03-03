@@ -249,7 +249,7 @@ app.post("/inbound", (req, res) => {
             to: `${from}`,
             from: `${to}`,
             body:
-              "Here are your available time slots:\n1. Monday October 26th, 6 PM\n2. Tuesday October 27th, 5 PM\n3. Wednesday October 28th, 2:30 PM\nPlease text 1, 2 or 3 for which time slot you would like to reserve, or text 4 to go back to the previous menu.",
+              "Here are your available time slots:\n1. Wednesday March 3rd, 6 PM\n2. Thursday March 4th, 5 PM\n3. Friday March 5th, 2:30 PM\nPlease text 1, 2 or 3 for which time slot you would like to reserve, or text 4 to go back to the previous menu.",
           })
           .then((message) => console.log(message.sid));
           console.log(customers[0]._id);
@@ -329,12 +329,12 @@ app.post("/inbound", (req, res) => {
             to: `${from}`,
             from: `${to}`,
             body:
-              "Your appointment is scheduled for Monday October 26th at 6 PM. We'll see you then!",
+              "Your appointment is scheduled for Wednesday March 3rd at 6 PM. We'll see you then!",
           })
           .then((message) => console.log(message.sid));
         Customer.findByIdAndUpdate(
           customers[0]._id,
-          { "$set": { "nextAppointment": new Date('2020-10-26T18:00:00.001Z').getTime(), "lastVaccination": new Date('2020-10-26T18:00:00.001Z').getTime(), "inConversation1": false, "inConversation2": false } },
+          { "$set": { "nextAppointment": new Date('2021-03-03T18:00:00.001Z').getTime(), "lastVaccination": new Date('2020-10-26T18:00:00.001Z').getTime(), "inConversation1": false, "inConversation2": false } },
           { "new": true, "upsert": true },
           function(err, result) {
             if (err) {
@@ -353,12 +353,12 @@ app.post("/inbound", (req, res) => {
             to: `${from}`,
             from: `${to}`,
             body:
-              "Your appointment is scheduled for Tuesday October 27th at 5 PM. We'll see you then!",
+              "Your appointment is scheduled for Thursday March 4th at 5 PM. We'll see you then!",
           })
           .then((message) => console.log(message.sid));
           Customer.findByIdAndUpdate(
             customers[0]._id,
-            { "$set": { "nextAppointment": new Date('2020-10-27T17:00:00.001Z').getTime(), "lastVaccination": new Date('2020-10-27T17:00:00.001Z').getTime(), "inConversation1": false, "inConversation2": false } },
+            { "$set": { "nextAppointment": new Date('2021-03-04T17:00:00.001Z').getTime(), "lastVaccination": new Date('2020-10-27T17:00:00.001Z').getTime(), "inConversation1": false, "inConversation2": false } },
             { "new": true, "upsert": true },
             function(err, result) {
               if (err) {
@@ -377,12 +377,12 @@ app.post("/inbound", (req, res) => {
             to: `${from}`,
             from: `${to}`,
             body:
-              "Your appointment is scheduled for Wednesday October 28th at 2:30 PM. We'll see you then!",
+              "Your appointment is scheduled for Friday March 5th at 2:30 PM. We'll see you then!",
           })
           .then((message) => console.log(message.sid));
           Customer.findByIdAndUpdate(
             customers[0]._id,
-            { "$set": { "nextAppointment": new Date('2020-10-28T14:30:00.001Z').getTime(), "lastVaccination": new Date('2020-10-28T14:30:00.001Z').getTime(), "inConversation1": false, "inConversation2": false } },
+            { "$set": { "nextAppointment": new Date('2021-03-05T14:30:00.001Z').getTime(), "lastVaccination": new Date('2020-10-28T14:30:00.001Z').getTime(), "inConversation1": false, "inConversation2": false } },
             { "new": true, "upsert": true },
             function(err, result) {
               if (err) {
